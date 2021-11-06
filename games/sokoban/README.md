@@ -25,22 +25,20 @@ For more details see the Wikipedia article: https://en.wikipedia.org/wiki/Sokoba
 
 Current working directory (`pwd`) should be the folder contaning these files.
 
-E.g. if you mounted the contents under `/usr/sokoban`, then be sure to be there:
+Correct:
 
 ```
-cd "/usr/sokoban"
-```
-
-And then load the game:
-
-```
-load "sokoban"
-```
-
-And run it:
-```
+cd "/usr/demos/games/sokoban"
+load "sokoban" // loads "sokoban.ms"
 run
-````
+```
+
+INCORRECT:
+
+```
+load "/usr/demos/games/sokoban/sokoban" // loads "sokoban.ms"
+run
+```
 
 This is important because the main sokoban game loads an additional module for level-playing. It needs to be found in the current directory.
 
