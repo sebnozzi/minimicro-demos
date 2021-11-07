@@ -1,6 +1,8 @@
 // This is a very simple game of "memory" using built-in assets.
 // It is intended as a solitaire game.
 
+clear
+
 // How long can you look at cards before hiding them again
 // In seconds
 SECONDS_TO_PEEK=1
@@ -37,6 +39,10 @@ boardHeight=(boxHeight+margin)*countRows-margin
 boardOriginX=960/2-(boardWidth/2)
 boardOriginY=640/2-(boardHeight/2)
 
+// Remove pixel display from slot to do off-screen painting
+// gfx still points to the (now detached) pixel display
+display(5).mode = displayMode.off
+
 createCardBackImg = function()
 	boxOriginX = 0
 	boxOriginY = 0
@@ -45,7 +51,7 @@ createCardBackImg = function()
 	return gfx.getImage(boxOriginX,boxOriginY,boxWidth,boxHeight)
 end function
 
-cardSprites = []
+cards = []
 
 CardSprite = new Sprite
 CardSprite.fileName = "UNDEFINED"
@@ -67,6 +73,8 @@ createCardSprite = function(variant,fileName,cardImg)
 	cardSprite.variant = variant
 	cardSprite.frontImg = cardImg
 	cardSprite.fileName = fileName
+	// Setting the localBounds is necessary to later being
+	// able to ask wether the sprite was clicked or not
 	cardSprite.localBounds = new Bounds
 	cardSprite.localBounds.width = cardImg.width
 	cardSprite.localBounds.height = cardImg.height
@@ -88,7 +96,7 @@ for fileName in foodFileNames
 	imgX = boxOriginX+(boxWidth/2)-img.width/2
 	imgY = boxOriginY+(boxHeight/2)-img.height/2
 	if fileName == "Apple.png" then
-		// Adjust position of apple, so that it's centered
+		// Adjust position of apple, because its image is not centered
 		imgX = imgX - 5
 	end if
 	gfx.drawImage img,imgX,imgY
@@ -98,54 +106,60 @@ for fileName in foodFileNames
 	cardSpriteB = createCardSprite("B",fileName,cardImg)
 	cardSpriteA.otherPair = cardSpriteB
 	cardSpriteB.otherPair = cardSpriteA
-	cardSprites.push cardSpriteA
-	cardSprites.push cardSpriteB
+	cards.push cardSpriteA
+	cards.push cardSpriteB
 end for
 
-shuffledIndexes = range(0,len(cardSprites)-1)
-shuffledIndexes.shuffle
+// Mix all the cards!
+cards.shuffle
 
-shuffledCardSprites = []
-for idx in shuffledIndexes
-	sprite = cardSprites[idx]
-	shuffledCardSprites.push sprite
-end for
-
+gfx.clear
+// Restore (re-attach) the pixel display
+display(5).mode = displayMode.pixel
 clear
 
-idx = 0
+// Place cards on the board / screen
+cardIdx = 0
 for y in range(0,countRows-1)
 	for x in range(0,countCols-1)
 		cardOriginX = boardOriginX+(x*(boxWidth+margin))
 		cardOriginY = boardOriginY+(y*(boxHeight+margin))
-		sprite = shuffledCardSprites[idx]
+		card = cards[cardIdx]
 		// Adjust sprite placement because coordinates
-		// refer to the center of it, not its leftBottom corner
-		sprite.x = cardOriginX+boxWidth/2
-		sprite.y = cardOriginY+boxHeight/2
-		display(4).sprites.push sprite
-		idx = idx + 1
+		// refer to the center of it, not its leftBottom corner.
+		// Move it by half its size.
+		card.x = cardOriginX+boxWidth/2
+		card.y = cardOriginY+boxHeight/2
+		display(4).sprites.push card
+		// Take next card
+		cardIdx = cardIdx + 1
 	end for
 end for
 
-glowCards = function(cards)
+// Used to signalize the user that something special
+// happened with these cards. Usually that a pair was found.
+glowCards = function(cardsToGlow)
 	for i in range(0,1)
 		for transparency in range(255,80,-40)
 			tintColor = color.rgba(255,255,255,transparency)
-			cards[0].tint = tintColor
-			cards[1].tint = tintColor
+			for card in cardsToGlow
+				card.tint = tintColor
+			end for
 			wait 0.01
 			yield
 		end for
 		for transparency in range(80,255,40)
 			tintColor = color.rgba(255,255,255,transparency)
-			cards[0].tint = tintColor
-			cards[1].tint = tintColor
+			for card in cardsToGlow
+				card.tint = tintColor
+			end for
 			wait 0.01
 			yield
 		end for
 	end for
 end function
+
+// -- MAIN PROGRAM --
 
 wasButtonDown = false
 isButtonDown = false
@@ -160,15 +174,19 @@ while true
 	isButtonDown = mouse.button  
 	
 	if isButtonDown and not wasButtonDown then
-		for s in cardSprites
-			if s.contains(mouse) and pairedCards.indexOf(s) == null and len(attemptedCards) <= 1 then
-				if not s.showingFront then
-					attemptedCards.push s
-					s.showFront					
-				end if
+		if len(attemptedCards) >= 2 then
+			// Bypass user clicks if already showing 2 attempted cards
+			break
+		end if
+		for card in cards
+			if card.contains(mouse) and not card.showingFront then
+				attemptedCards.push card
+				card.showFront	
 			end if
 		end for
 	end if
+	
+	wasButtonDown = isButtonDown
 	
 	if len(attemptedCards) == 2 then
 		cardA = attemptedCards[0]
@@ -191,13 +209,18 @@ while true
 		end if
 	end if	
 	
-	if len(pairedCards) == len(cardSprites) then
+	if len(pairedCards) == len(cards) then
 		// Game is won
 		endTime = time
 		timeTaken = round(endTime-startTime,0)
 		print "Solved! (in "+attempts+" attempts and "+timeTaken+" seconds)"
-		print "Enter ""run"" to play again"
-		exit
+		choice = input("Play again? (y/n) ")
+		if choice.lower.indexOf("y") == 0 then
+			// Start all over
+			run
+		else
+			exit
+		end if		
 	end if
 	
 	if key.available then
@@ -206,8 +229,6 @@ while true
 			exit
 		end if
 	end if
-	
-	wasButtonDown = isButtonDown
 	
 	yield
 end while
