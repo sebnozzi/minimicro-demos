@@ -1,0 +1,9 @@
+
+Ideas of what could be shown:
+
+* How to build a sprite from information on the screen
+* How to handle mouse clicks
+* How to detect if a sprite was clicked
+* How to use pixelated sprites
+* How off-displays work
+* How to save globals
