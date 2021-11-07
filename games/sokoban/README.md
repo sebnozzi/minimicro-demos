@@ -54,9 +54,13 @@ Press "Q" to quit.
 
 # Credits
 
-Levels by "Thinking Rabbit"
+Original levels by "Thinking Rabbit" (original game publisher)
+
 > Taken from: http://sokoban-jd.blogspot.com/2014/05/the-original-collection.html
 
+Microban levels by David W. Skinner
+
+> Taken from http://www.abelmartin.com/rj/sokobanJS/Skinner/David%20W.%20Skinner%20-%20Sokoban.htm
 
 Game assets by Kenney
 
