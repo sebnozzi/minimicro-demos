@@ -5,7 +5,7 @@ This is a simple memory game, using built-in assets.
 
 This version of the game is for one player only, as a solitaire game.
 
-![Memory screenshot](./screenshot.png)
+<img alt="Memory screenshot" src="./screenshot.png" width="50%" height="50%"/>
 
 ## Gameplay
 

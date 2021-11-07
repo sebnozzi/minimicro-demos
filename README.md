@@ -2,7 +2,7 @@
 
 These are some demo programs I coded for the [Mini Micro](https://miniscript.org/MiniMicro/index.html) virtual computer, done for education purposes but mostly for fun.
 
-![Sokoban screenshot](./screenshot.png)
+<img alt="Sokoban screenshot" src="./screenshot.png" width="50%" height="50%"/>
 
 For now they are categorized as:
 

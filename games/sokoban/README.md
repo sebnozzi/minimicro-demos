@@ -7,7 +7,7 @@ It was done while learning to code for the Mini Micro and get familiar with the 
 
 Whenever possible it tries to follow OOP principles.
 
-![Sokoban screenshot](./screenshot.png)
+<img alt="Sokoban screenshot" src="./screenshot.png" width="50%" height="50%"/>
 
 ## About Sokoban
 
